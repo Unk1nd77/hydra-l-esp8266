@@ -58,12 +58,12 @@ echo "Проверка Python зависимостей..."
 
 # Попробуем разные способы проверки зависимостей
 check_python_deps() {
-    python3 -c "import click, cryptography, pyparsing, pyserial" 2>/dev/null && return 0
+    python3 -c "import click, cryptography, pyparsing, serial" 2>/dev/null && return 0
     
     # Попробуем активировать виртуальное окружение если оно есть
     if [ -f "$HOME/esp/python_env/bin/activate" ]; then
         source "$HOME/esp/python_env/bin/activate"
-        python3 -c "import click, cryptography, pyparsing, pyserial" 2>/dev/null && return 0
+        python3 -c "import click, cryptography, pyparsing, serial" 2>/dev/null && return 0
         deactivate 2>/dev/null || true
     fi
     
