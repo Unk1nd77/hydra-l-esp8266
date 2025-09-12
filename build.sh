@@ -53,6 +53,14 @@ fi
 
 echo "Toolchain: $(xtensa-lx106-elf-gcc --version | head -n1)"
 
+# Автоматическое исправление совместимости SDK
+echo "Применение исправлений совместимости..."
+if [ -f "./fix_sdk_compatibility.sh" ]; then
+    ./fix_sdk_compatibility.sh
+else
+    echo -e "${YELLOW}⚠ Скрипт исправлений не найден, продолжаем без исправлений${NC}"
+fi
+
 # Проверка Python зависимостей
 echo "Проверка Python зависимостей..."
 
@@ -103,8 +111,11 @@ fi
 echo "Начало сборки..."
 echo "Это может занять несколько минут..."
 
-# Используем idf.py для сборки
-python3 $IDF_PATH/tools/idf.py build
+# Исправление для новых версий CMake
+export CMAKE_POLICY_VERSION_MINIMUM=3.5
+
+# Используем idf.py для сборки с дополнительными флагами для совместимости
+python3 $IDF_PATH/tools/idf.py build -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
 if [ $? -eq 0 ]; then
     echo

@@ -1,4 +1,12 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5)
+
+# Установка политик для совместимости с новыми версиями CMake
+if(POLICY CMP0115)
+    cmake_policy(SET CMP0115 OLD)
+endif()
+if(POLICY CMP0148)
+    cmake_policy(SET CMP0148 OLD)
+endif()
 
 # Установка пути к ESP8266 RTOS SDK
 set(IDF_PATH $ENV{IDF_PATH})
