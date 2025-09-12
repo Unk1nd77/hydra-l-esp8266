@@ -127,9 +127,9 @@ fi
 print_info "Установка Python зависимостей..."
 
 # Проверка, нужно ли использовать --break-system-packages
-if pip3 install --user click cryptography pyparsing pyserial 2>/dev/null; then
+if pip3 install --user -r $IDF_PATH/requirements.txt 2>/dev/null; then
     print_status 0 "Python зависимости установлены через --user"
-elif pip3 install --break-system-packages --user click cryptography pyparsing pyserial 2>/dev/null; then
+elif pip3 install --break-system-packages --user -r $IDF_PATH/requirements.txt 2>/dev/null; then
     print_status 0 "Python зависимости установлены с --break-system-packages"
 else
     print_warning "Не удалось установить через pip, пробуем через Homebrew..."
@@ -139,7 +139,7 @@ else
     print_info "Создание виртуального окружения для Python зависимостей..."
     python3 -m venv ~/esp/python_env
     source ~/esp/python_env/bin/activate
-    pip install click cryptography pyparsing pyserial
+    pip install -r $IDF_PATH/requirements.txt
     deactivate
     
     print_warning "Python зависимости установлены в виртуальное окружение"

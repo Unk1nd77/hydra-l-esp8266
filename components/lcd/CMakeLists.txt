@@ -1,5 +1,5 @@
 idf_component_register(
     SRCS "lcd.c"
     INCLUDE_DIRS "include"
-    REQUIRES driver esp_common freertos log
+    REQUIRES esp8266 esp_common freertos log
 )
