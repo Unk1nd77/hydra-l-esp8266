@@ -201,16 +201,27 @@ your_wifi_password             # Пароль WiFi
 
 ## 🚀 Быстрый старт
 
-### 1. Установка окружения разработки
+### 1. Клонирование проекта
 ```bash
-# Автоматическая установка (Linux)
-./install_linux.sh
+git clone https://github.com/Unk1nd77/hydra-l-esp8266.git
+cd hydra-l-esp8266
+```
 
-# Ручная активация окружения
+### 2. Установка окружения разработки
+
+**На macOS:**
+```bash
+./install_macos.sh
 source ~/esp/setup_env.sh
 ```
 
-### 2. Сборка и прошивка
+**На Linux:**
+```bash
+./install_linux.sh
+source ~/esp/setup_env.sh
+```
+
+### 3. Сборка и прошивка
 ```bash
 # Тестирование окружения
 ./test_build.sh
@@ -219,6 +230,10 @@ source ~/esp/setup_env.sh
 ./build.sh
 
 # Прошивка устройства
+# macOS:
+python3 $IDF_PATH/tools/idf.py -p /dev/cu.usbserial-* flash monitor
+
+# Linux:
 python3 $IDF_PATH/tools/idf.py -p /dev/ttyUSB0 flash monitor
 ```
 

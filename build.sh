@@ -1,13 +1,33 @@
 #!/bin/bash
 
-# Скрипт для сборки проекта Hydra-L на Linux
+# Универсальный скрипт для сборки проекта Hydra-L
+# Поддерживает: macOS, Linux
 # Автор: Kiro AI Assistant
-# Версия: 2.0
+# Версия: 2.1
 
 set -e  # Остановка при ошибке
 
-echo "=== Hydra-L Build Script v2.0 ==="
-echo "Сборка стабильной версии прошивки для ESP8266"
+# Цвета для вывода
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Определение операционной системы
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    OS="macOS"
+    SERIAL_PORTS="/dev/cu.*"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    OS="Linux"
+    SERIAL_PORTS="/dev/ttyUSB* /dev/ttyACM*"
+else
+    OS="Unknown"
+fi
+
+echo -e "${BLUE}=== Hydra-L Build Script v2.1 ===${NC}"
+echo -e "${BLUE}Сборка стабильной версии прошивки для ESP8266${NC}"
+echo -e "${BLUE}Операционная система: $OS${NC}"
 echo
 
 # Проверка переменных окружения
@@ -36,8 +56,13 @@ echo "Toolchain: $(xtensa-lx106-elf-gcc --version | head -n1)"
 # Проверка Python зависимостей
 echo "Проверка Python зависимостей..."
 python3 -c "import click, cryptography, pyparsing, pyserial" 2>/dev/null || {
-    echo "Ошибка: Не все Python зависимости установлены"
+    echo -e "${RED}Ошибка: Не все Python зависимости установлены${NC}"
     echo "Выполните: pip3 install click cryptography pyparsing pyserial"
+    if [[ "$OS" == "macOS" ]]; then
+        echo "Или запустите: ./install_macos.sh"
+    else
+        echo "Или запустите: ./install_linux.sh"
+    fi
     exit 1
 }
 
@@ -61,20 +86,32 @@ python3 $IDF_PATH/tools/idf.py build
 
 if [ $? -eq 0 ]; then
     echo
-    echo "=== СБОРКА ЗАВЕРШЕНА УСПЕШНО ==="
+    echo -e "${GREEN}=== СБОРКА ЗАВЕРШЕНА УСПЕШНО ===${NC}"
     echo
     echo "Файлы прошивки созданы в директории build/"
     echo "Основной файл: build/hydra_l.bin"
     echo
-    echo "Для прошивки выполните:"
-    echo "python3 $IDF_PATH/tools/idf.py -p /dev/ttyUSB0 flash"
+    echo -e "${YELLOW}Для прошивки выполните:${NC}"
+    if [[ "$OS" == "macOS" ]]; then
+        echo "python3 \$IDF_PATH/tools/idf.py -p /dev/cu.usbserial-* flash"
+        echo
+        echo "Найти порт можно командой: ls /dev/cu.*"
+    else
+        echo "python3 \$IDF_PATH/tools/idf.py -p /dev/ttyUSB0 flash"
+        echo
+        echo "Найти порт можно командой: ls /dev/ttyUSB* /dev/ttyACM*"
+    fi
     echo
-    echo "Для мониторинга выполните:"
-    echo "python3 $IDF_PATH/tools/idf.py -p /dev/ttyUSB0 monitor"
+    echo -e "${YELLOW}Для мониторинга выполните:${NC}"
+    if [[ "$OS" == "macOS" ]]; then
+        echo "python3 \$IDF_PATH/tools/idf.py -p /dev/cu.usbserial-* monitor"
+    else
+        echo "python3 \$IDF_PATH/tools/idf.py -p /dev/ttyUSB0 monitor"
+    fi
     echo
 else
     echo
-    echo "=== ОШИБКА СБОРКИ ==="
+    echo -e "${RED}=== ОШИБКА СБОРКИ ===${NC}"
     echo "Проверьте логи выше для диагностики проблем"
     exit 1
 fi
