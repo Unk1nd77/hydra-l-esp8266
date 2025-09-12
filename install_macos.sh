@@ -125,7 +125,26 @@ fi
 
 # Установка Python зависимостей
 print_info "Установка Python зависимостей..."
-pip3 install --user click cryptography pyparsing pyserial
+
+# Проверка, нужно ли использовать --break-system-packages
+if pip3 install --user click cryptography pyparsing pyserial 2>/dev/null; then
+    print_status 0 "Python зависимости установлены через --user"
+elif pip3 install --break-system-packages --user click cryptography pyparsing pyserial 2>/dev/null; then
+    print_status 0 "Python зависимости установлены с --break-system-packages"
+else
+    print_warning "Не удалось установить через pip, пробуем через Homebrew..."
+    brew install python-cryptography || true
+    
+    # Создаем виртуальное окружение как fallback
+    print_info "Создание виртуального окружения для Python зависимостей..."
+    python3 -m venv ~/esp/python_env
+    source ~/esp/python_env/bin/activate
+    pip install click cryptography pyparsing pyserial
+    deactivate
+    
+    print_warning "Python зависимости установлены в виртуальное окружение"
+    print_warning "Для активации используйте: source ~/esp/python_env/bin/activate"
+fi
 
 # Создание скрипта активации окружения
 SETUP_SCRIPT="$WORK_DIR/setup_env.sh"

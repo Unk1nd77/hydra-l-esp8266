@@ -55,16 +55,38 @@ echo "Toolchain: $(xtensa-lx106-elf-gcc --version | head -n1)"
 
 # Проверка Python зависимостей
 echo "Проверка Python зависимостей..."
-python3 -c "import click, cryptography, pyparsing, pyserial" 2>/dev/null || {
+
+# Попробуем разные способы проверки зависимостей
+check_python_deps() {
+    python3 -c "import click, cryptography, pyparsing, pyserial" 2>/dev/null && return 0
+    
+    # Попробуем активировать виртуальное окружение если оно есть
+    if [ -f "$HOME/esp/python_env/bin/activate" ]; then
+        source "$HOME/esp/python_env/bin/activate"
+        python3 -c "import click, cryptography, pyparsing, pyserial" 2>/dev/null && return 0
+        deactivate 2>/dev/null || true
+    fi
+    
+    return 1
+}
+
+if ! check_python_deps; then
     echo -e "${RED}Ошибка: Не все Python зависимости установлены${NC}"
-    echo "Выполните: pip3 install click cryptography pyparsing pyserial"
+    echo
     if [[ "$OS" == "macOS" ]]; then
-        echo "Или запустите: ./install_macos.sh"
+        echo "Попробуйте один из способов:"
+        echo "1. pip3 install --break-system-packages --user click cryptography pyparsing pyserial"
+        echo "2. ./install_macos.sh (автоматическая установка)"
+        echo "3. Создать виртуальное окружение:"
+        echo "   python3 -m venv ~/esp/python_env"
+        echo "   source ~/esp/python_env/bin/activate"
+        echo "   pip install click cryptography pyparsing pyserial"
     else
+        echo "Выполните: pip3 install --user click cryptography pyparsing pyserial"
         echo "Или запустите: ./install_linux.sh"
     fi
     exit 1
-}
+fi
 
 # Очистка предыдущей сборки
 echo "Очистка предыдущей сборки..."
