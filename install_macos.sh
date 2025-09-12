@@ -63,7 +63,7 @@ brew update
 
 # Установка системных зависимостей
 print_info "Установка системных зависимостей..."
-brew install git wget python3 cmake ninja
+brew install git wget python3 cmake ninja ncurses flex bison gperf
 
 # Проверка Python
 print_info "Проверка Python..."
