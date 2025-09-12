@@ -115,7 +115,8 @@ echo "Это может занять несколько минут..."
 export CMAKE_POLICY_VERSION_MINIMUM=3.5
 
 # Используем idf.py для сборки с дополнительными флагами для совместимости
-python3 $IDF_PATH/tools/idf.py build -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+export EXTRA_COMPONENT_DIRS="$PWD/components"
+python3 $IDF_PATH/tools/idf.py build -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCONFIG_PTHREAD_TASK_STACK_SIZE_DEFAULT=2048
 
 if [ $? -eq 0 ]; then
     echo

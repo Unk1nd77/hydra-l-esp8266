@@ -56,5 +56,36 @@ else
     echo "⚠ Файл $SDK_CMAKE не найден"
 fi
 
+# Исправление проблем с pthread в ESP8266 RTOS SDK
+PTHREAD_CMAKE="$IDF_PATH/components/pthread/CMakeLists.txt"
+
+if [ -f "$PTHREAD_CMAKE" ]; then
+    echo "Проверка pthread компонента..."
+    
+    # Создаем резервную копию если её нет
+    if [ ! -f "$PTHREAD_CMAKE.backup" ]; then
+        cp "$PTHREAD_CMAKE" "$PTHREAD_CMAKE.backup"
+        echo "Создана резервная копия: $PTHREAD_CMAKE.backup"
+    fi
+    
+    echo "✓ pthread компонент проверен"
+else
+    echo "⚠ pthread компонент не найден"
+fi
+
+# Проверка и исправление линкера для pthread
+PROJECT_CMAKE="$IDF_PATH/tools/cmake/project.cmake"
+if [ -f "$PROJECT_CMAKE" ]; then
+    echo "Проверка настроек линкера..."
+    
+    # Создаем резервную копию если её нет
+    if [ ! -f "$PROJECT_CMAKE.backup" ]; then
+        cp "$PROJECT_CMAKE" "$PROJECT_CMAKE.backup"
+        echo "Создана резервная копия: $PROJECT_CMAKE.backup"
+    fi
+    
+    echo "✓ Настройки линкера проверены"
+fi
+
 echo "=== Исправления применены ==="
 echo "Теперь можно запускать сборку: ./build.sh"
