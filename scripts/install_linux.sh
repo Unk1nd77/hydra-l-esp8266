@@ -2,7 +2,7 @@
 
 # Скрипт установки окружения для разработки ESP8266 на Linux
 # Автор: Kiro AI Assistant
-# Версия: 2.0
+# Версия: 2.1 (исправлено форматирование)
 
 set -e
 
@@ -26,13 +26,58 @@ echo "Установка системных зависимостей..."
 case $DISTRO in
     ubuntu|debian)
         sudo apt update
-        sudo apt install -y git wget flex bison gperf python3 python3-pip python3-setuptools cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+        sudo apt install -y \
+            git \
+            wget \
+            flex \
+            bison \
+            gperf \
+            python3 \
+            python3-pip \
+            python3-setuptools \
+            cmake \
+            ninja-build \
+            ccache \
+            libffi-dev \
+            libssl-dev \
+            dfu-util \
+            libusb-1.0-0
         ;;
     fedora|centos|rhel)
-        sudo dnf install -y git wget flex bison gperf python3 python3-pip python3-setuptools cmake ninja-build ccache libffi-devel openssl-devel dfu-util libusbx-devel
+        sudo dnf install -y \
+            git \
+            wget \
+            flex \
+            bison \
+            gperf \
+            python3 \
+            python3-pip \
+            python3-setuptools \
+            cmake \
+            ninja-build \
+            ccache \
+            libffi-devel \
+            openssl-devel \
+            dfu-util \
+            libusbx-devel
         ;;
     arch|manjaro)
-        sudo pacman -S --needed git wget flex bison gperf python python-pip python-setuptools cmake ninja ccache libffi openssl dfu-util libusb
+        sudo pacman -S --needed \
+            git \
+            wget \
+            flex \
+            bison \
+            gperf \
+            python \
+            python-pip \
+            python-setuptools \
+            cmake \
+            ninja \
+            ccache \
+            libffi \
+            openssl \
+            dfu-util \
+            libusb
         ;;
     *)
         echo "Неподдерживаемый дистрибутив: $DISTRO"
