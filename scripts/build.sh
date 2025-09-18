@@ -55,6 +55,14 @@ echo "Toolchain: $(xtensa-lx106-elf-gcc --version | head -n1)"
 
 # Автоматическое исправление совместимости SDK
 echo "Применение исправлений совместимости..."
+
+# Исправление ошибки cstdint
+if [ -f "./scripts/fix_cstdint_error.sh" ]; then
+    echo "Применение исправления cstdint..."
+    ./scripts/fix_cstdint_error.sh
+fi
+
+# Другие исправления совместимости
 if [ -f "./fix_sdk_compatibility.sh" ]; then
     ./fix_sdk_compatibility.sh
 else
