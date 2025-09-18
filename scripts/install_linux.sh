@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Скрипт установки окружения для разработки ESP8266 на Linux
-# Автор: Kiro AI Assistant
-# Версия: 2.1 (исправлено форматирование)
+# Версия: 2.2 (работает без RPM Fusion, с российскими зеркалами)
 
 set -e
 
 echo "=== ESP8266 Development Environment Setup ==="
 echo "Установка окружения для разработки ESP8266 на Linux"
+echo "Поддержка российских зеркал и работа без RPM Fusion"
 echo
 
 # Определение дистрибутива Linux
@@ -21,10 +21,34 @@ fi
 
 echo "Обнаружен дистрибутив: $DISTRO"
 
+# Функция для настройки российских зеркал Fedora
+setup_fedora_mirrors() {
+    echo "Настройка российских зеркал для Fedora..."
+    
+    # Остановить все процессы DNF
+    sudo pkill dnf 2>/dev/null || true
+    
+    # Очистить кэш
+    sudo dnf clean all
+    
+    # Настроить российские зеркала
+    sudo dnf config-manager --set-enabled fedora
+    sudo dnf config-manager --set-enabled updates
+    
+    # Добавить российские зеркала
+    echo "Добавление российских зеркал..."
+    sudo dnf config-manager --add-repo https://mirror.yandex.ru/fedora/linux/ 2>/dev/null || true
+    sudo dnf config-manager --add-repo https://mirror.selectel.ru/fedora/linux/ 2>/dev/null || true
+    
+    # Обновить кэш
+    sudo dnf makecache
+}
+
 # Установка системных зависимостей
 echo "Установка системных зависимостей..."
 case $DISTRO in
     ubuntu|debian)
+        echo "Установка для Ubuntu/Debian..."
         sudo apt update
         sudo apt install -y \
             git \
@@ -44,6 +68,14 @@ case $DISTRO in
             libusb-1.0-0
         ;;
     fedora|centos|rhel)
+        echo "Установка для Fedora/CentOS/RHEL..."
+        
+        # Настроить российские зеркала для Fedora
+        if [[ "$DISTRO" == "fedora" ]]; then
+            setup_fedora_mirrors
+        fi
+        
+        # Установить пакеты
         sudo dnf install -y \
             git \
             wget \
@@ -62,6 +94,7 @@ case $DISTRO in
             libusbx-devel
         ;;
     arch|manjaro)
+        echo "Установка для Arch Linux..."
         sudo pacman -S --needed \
             git \
             wget \
@@ -81,7 +114,8 @@ case $DISTRO in
         ;;
     *)
         echo "Неподдерживаемый дистрибутив: $DISTRO"
-        echo "Пожалуйста, установите зависимости вручную"
+        echo "Попробуйте установить зависимости вручную:"
+        echo "git wget flex bison gperf python3 python3-pip python3-setuptools cmake ninja-build ccache"
         ;;
 esac
 
@@ -94,11 +128,27 @@ cd $WORK_DIR
 # Скачивание ESP8266 RTOS SDK
 if [ ! -d "ESP8266_RTOS_SDK" ]; then
     echo "Скачивание ESP8266 RTOS SDK..."
-    git clone --recursive https://github.com/espressif/ESP8266_RTOS_SDK.git
-    cd ESP8266_RTOS_SDK
-    git checkout v3.4
-    git submodule update --init --recursive
-    cd ..
+    
+    # Настроить git для работы с российскими зеркалами
+    git config --global http.sslVerify true
+    git config --global http.postBuffer 1048576000
+    
+    # Клонировать SDK
+    GIT_URL="https://github.com/espressif/ESP8266_RTOS_SDK.git"
+    echo "Клонирование: $GIT_URL"
+    
+    if ! git clone --recursive "$GIT_URL"; then
+        echo "Ошибка при клонировании, пробуем альтернативный метод..."
+        git clone "$GIT_URL"
+        cd ESP8266_RTOS_SDK
+        git submodule update --init --recursive
+        cd ..
+    else
+        cd ESP8266_RTOS_SDK
+        git checkout v3.4
+        git submodule update --init --recursive
+        cd ..
+    fi
 else
     echo "ESP8266 RTOS SDK уже установлен"
 fi
@@ -123,7 +173,14 @@ if [ ! -d "$TOOLCHAIN_DIR" ]; then
             ;;
     esac
     
-    wget $TOOLCHAIN_URL -O toolchain.tar.gz
+    echo "Скачивание toolchain: $TOOLCHAIN_URL"
+    
+    # Скачиваем с проверкой
+    if ! wget "$TOOLCHAIN_URL" -O toolchain.tar.gz; then
+        echo "Ошибка при скачивании toolchain"
+        exit 1
+    fi
+    
     tar -xzf toolchain.tar.gz
     rm toolchain.tar.gz
 else
